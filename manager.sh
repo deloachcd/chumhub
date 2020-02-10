@@ -1,6 +1,7 @@
 #!/bin/bash
 
 export MUSIC_ROOT=$HOME/Music
+export PROJECT_ROOT=$HOME/Projects/chumhub
 export GIT_REMOTE_ORIGIN="git@github.com:deloachcd/deloachcd.github.io.git"
 export CHUMHUB_IGNORED_FILE_FORMATS=$(cat << EOF
 **/*.mp3
@@ -41,8 +42,11 @@ init_repo() {
     cd "$MUSIC_ROOT"
     if [[ ! -d .git ]]; then
         git init
-        git remote set origin "$GIT_REMOTE_ORIGIN"
+        git remote add origin "$GIT_REMOTE_ORIGIN"
         echo -e "$CHUMHUB_IGNORED_FILE_FORMATS" > .gitignore
+        git add .
+        git commit -m "initial commit"
+        git push -u origin master
     fi
     cd "$OG_DIR"
 }
@@ -50,8 +54,11 @@ init_repo() {
 git_sync_remote() {
     OG_DIR="$(pwd)"
     cd "$MUSIC_ROOT"
+    cp "$PROJECT_ROOT/index.html" "$MUSIC_ROOT"
+    cp -r "$PROJECT_ROOT/websrc" "$MUSIC_ROOT/websrc"
     git pull
     git add .
+    git commit -m "changes"
     git push -u origin master
     cd "$OG_DIR"
 }
@@ -73,7 +80,7 @@ build_metafile() {
         metafile="$metafile$entry"
     done < <(find . -type f -name "cover.jpg" -or -name "cover.png")
     metafile="${metafile%?}]}"  # ${var%?} => stack overflow black magic to trim last char
-    echo "$metafile"
+    echo "$metafile" > "$MUSIC_ROOT/meta.json"
     cd "$OG_DIR"
 }
 

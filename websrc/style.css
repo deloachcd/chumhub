@@ -1,0 +1,25 @@
+body {
+    font-family: 'Courier New', Courier, monospace;
+    background-color: #37373d,
+}
+
+#sidenav {
+    height: 100%;
+    max-width: 25%;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: #252526;
+    overflow-x: hidden;
+    padding-top: 20px;
+}
+
+#main {
+    margin-left: 25%
+}
+
+.tag {
+    color: #fff;
+    margin: 20px;
+}
