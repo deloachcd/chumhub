@@ -37,19 +37,23 @@ extract_bandcamp_archive() {
 }
 
 init_repo() {
+    OG_DIR="$(pwd)"
     cd "$MUSIC_ROOT"
     if [[ ! -d .git ]]; then
         git init
         git remote set origin "$GIT_REMOTE_ORIGIN"
         echo -e "$CHUMHUB_IGNORED_FILE_FORMATS" > .gitignore
     fi
+    cd "$OG_DIR"
 }
 
 git_sync_remote() {
+    OG_DIR="$(pwd)"
     cd "$MUSIC_ROOT"
     git pull
     git add .
     git push -u origin master
+    cd "$OG_DIR"
 }
 
 build_metafile() {
@@ -60,14 +64,41 @@ build_metafile() {
         artist="$(echo $cover | awk -F '/' '{ print $2 }')"
         album="$(echo $cover | awk -F '/' '{ print $3 }')"
         if [[ -e "./$artist/$album/tags" ]]; then
-            tags=$(cat tags)
+            tags=$(cat "./$artist/$album/tags")
         else
             tags=""
         fi
-        entry="{\"artist\":\"$artist\",\"album\":\"$album\",\"tags\":[$tags]},"
+        entry="{\"artist\":\"$artist\",\"album\":\"$album\",\"tags\":[$tags],"
+        entry="$entry\"cover\":\"$cover\"},"
         metafile="$metafile$entry"
     done < <(find . -type f -name "cover.jpg" -or -name "cover.png")
-    cd $OG_DIR
     metafile="${metafile%?}]}"  # ${var%?} => stack overflow black magic to trim last char
     echo "$metafile"
+    cd "$OG_DIR"
+}
+
+jsonify_tags() {
+    tags="$@"
+    json_tags=""
+    for tag in ${=tags}; do
+        json_tags="$json_tags\"$tag\","
+    done
+    json_tags="${json_tags%?}"
+    echo "$json_tags"
+}
+
+tag_all_untagged() {
+    OG_DIR="$(pwd)"
+    cd "$MUSIC_ROOT"
+    while read cover <&3; do
+        artist="$(echo $cover | awk -F '/' '{ print $2 }')"
+        album="$(echo $cover | awk -F '/' '{ print $3 }')"
+        if [[ ! -e "./$artist/$album/tags" ]]; then
+            echo "$artist - $album"
+            echo "Enter tags for this album:"
+            read tags
+            jsonify_tags $tags > "./$artist/$album/tags"
+        fi
+    done 3< <(find . -type f -name "cover.jpg" -or -name "cover.png")
+    cd "$OG_DIR"
 }
