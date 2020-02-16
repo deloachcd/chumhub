@@ -1,8 +1,9 @@
-remote_metafile = "https://deloachcd.github.io/meta.json"
+remote_metafile = "https://deloachcd.github.io/websrc/meta.json"
 
-metadata = fetch(remote_metafile)
+fetch(remote_metafile)
     .then((response) => {
         return response.json();
+    })
+    .then((json_metadata) => {
+        console.log(json_metadata)
     });
-
-console.log(metadata);

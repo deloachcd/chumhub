@@ -80,14 +80,17 @@ build_metafile() {
         metafile="$metafile$entry"
     done < <(find . -type f -name "cover.jpg" -or -name "cover.png")
     metafile="${metafile%?}]}"  # ${var%?} => stack overflow black magic to trim last char
-    echo "$metafile" > "$MUSIC_ROOT/meta.json"
+    if [[ ! -d "$MUSIC_ROOT/websrc" ]]; then
+        mkdir "$MUSIC_ROOT/websrc"
+    fi
+    echo "$metafile" > "$MUSIC_ROOT/websrc/meta.json"
     cd "$OG_DIR"
 }
 
 jsonify_tags() {
     tags="$@"
     json_tags=""
-    for tag in ${=tags}; do
+    for tag in ${tags}; do
         json_tags="$json_tags\"$tag\","
     done
     json_tags="${json_tags%?}"
