@@ -55,7 +55,7 @@ git_sync_remote() {
     OG_DIR="$(pwd)"
     cd "$MUSIC_ROOT"
     cp "$PROJECT_ROOT/index.html" "$MUSIC_ROOT"
-    cp -r "$PROJECT_ROOT/websrc" "$MUSIC_ROOT/websrc"
+    cp -r "$PROJECT_ROOT/websrc" "$MUSIC_ROOT"
     git pull
     git add .
     git commit -m "changes"
